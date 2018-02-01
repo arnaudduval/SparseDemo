@@ -29,12 +29,13 @@ program test
 
     implicit none
     
+    integer nmax, nnz
     parameter(nmax=4, nnz=6)
-    integer :: n, a, istat
+    integer :: i, n, a, istat
     integer, dimension(:), allocatable :: indx, jndx
     double precision, dimension(:), allocatable :: val, x, y
     
-    allocate(val(nnz), x(nmax), y(nmax), indx(nnz), jndx(nnz)
+    allocate(val(nnz), x(nmax), y(nmax), indx(nnz), jndx(nnz))
     
     indx=(/1,2,2,3,4,4/)
     jndx=(/1,2,4,3,1,4/)
@@ -53,5 +54,19 @@ program test
     do i =1, nnz
         call uscr_insert_entry(A, val(i), indx(i), jndx(i), istat)
     enddo
+    
+    !! 3) complete construction of sparse matrix
+    
+    call uscr_end(a, istat)
+    
+    !! 4) compute matrix vector product y = A*x
+    
+    call usmv(a,x,y,istat)
+    
+    !! 5) Release matrix handle
+    
+    call usds(a, istat)
+    
+    
 
 end program test
