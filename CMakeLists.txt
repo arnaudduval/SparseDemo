@@ -8,4 +8,4 @@ set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran)
 
 
 
-add_subdirectory(blas_interface)
+add_subdirectory(SparseBLAS)
