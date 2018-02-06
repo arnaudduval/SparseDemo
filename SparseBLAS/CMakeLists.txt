@@ -10,6 +10,4 @@ file( GLOB SPARSE_BLAS_SRCS src/*.f90)
 
 add_library(SparseBLAS SHARED ${SPARSE_BLAS_SRCS})
 
-
-
 set_target_properties(SparseBLAS PROPERTIES LINKER_LANGUAGE Fortran)

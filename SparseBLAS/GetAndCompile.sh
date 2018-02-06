@@ -13,4 +13,7 @@ rm -rf INSTALL README.1st SPEC_ARITH TESTER TARGET_FILES SOURCE_FILES
 
 mv SOFTWARE src
 
+#On enlève un fichier qui ne compile pas
+rm src/test.f90
+
 
