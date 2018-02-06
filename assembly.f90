@@ -22,6 +22,38 @@ subroutine Assemble(connectivity, nElts, nNodes, nNodePerElement, stiffness)
     
 end subroutine Assemble
 
+subroutine AssembleBLAS(connectivity, nElts, nNodes, nNodePerElement, stiffness)
+    
+    use blas_sparse
+
+    implicit none
+    
+    integer, intent(in)                                         :: nElts, nNodePerElement, nNodes
+    integer,dimension(nElts, nNodePerElement+1), intent(in)     :: connectivity
+    integer                                                     :: stiffness
+    integer                                                     :: istat
+    
+    integer :: i, j, iElement
+    
+    !! Creation d'un handle BLAS
+    call duscr_begin(nNodes, nNodes, stiffness, istat)
+    
+    !! On insere les valeurs à l'arrache 
+    do iElement = 1, nElts
+        do i = 1, nNodePerElement
+            do j = 1, nNodePerElement
+                call uscr_insert_entry(stiffness, 1.0, connectivity(iElement, i+1), connectivity(iElement, j+1), istat)
+            enddo
+        enddo
+    enddo
+    
+    !! On finit la construction
+    call uscr_end(stiffness, istat)
+    
+    !! On relâche le handle
+    call usds(stiffness, istat)
+end subroutine AssembleBLAS
+
 
 program test
 
@@ -40,6 +72,8 @@ program test
     indx=(/1,2,2,3,4,4/)
     jndx=(/1,2,4,3,1,4/)
     val=(/1.1,2.2,2.4,3.3,4.1,4.4/)
+    
+    x=(/1.7,2.1,3.2,4.1/)
     
     
     write(*,*) "Hello world !"
@@ -66,6 +100,9 @@ program test
     !! 5) Release matrix handle
     
     call usds(a, istat)
+    
+    write(*,*) "x = ", x
+    write(*,*) "y = ", y
     
     
 
