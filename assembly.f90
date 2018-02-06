@@ -22,7 +22,7 @@ subroutine Assemble(connectivity, nElts, nNodes, nNodePerElement, stiffness)
     
 end subroutine Assemble
 
-subroutine AssembleBLAS(connectivity, nElts, nNodes, nNodePerElement, stiffness)
+subroutine AssembleBLAS(connectivity, nElts, nNodes, nNodePerElement)
     
     use blas_sparse
 
@@ -36,22 +36,32 @@ subroutine AssembleBLAS(connectivity, nElts, nNodes, nNodePerElement, stiffness)
     integer :: i, j, iElement
     
     !! Creation d'un handle BLAS
+    write(*,*) "creation d un handle"
+    write(*,*) nNodes, nNodes
     call duscr_begin(nNodes, nNodes, stiffness, istat)
+    write(*,*) "DONE"
     
     !! On insere les valeurs à l'arrache 
+    write(*,*) "insertion des valeurs"
     do iElement = 1, nElts
         do i = 1, nNodePerElement
             do j = 1, nNodePerElement
+                write(*,*) i, j, connectivity(iElement, i+1), connectivity(iElement, j+1)
                 call uscr_insert_entry(stiffness, 1.0, connectivity(iElement, i+1), connectivity(iElement, j+1), istat)
             enddo
         enddo
     enddo
+    write(*,*) "DONE"
     
     !! On finit la construction
+    write(*,*) "Fin de la construction"
     call uscr_end(stiffness, istat)
+    write(*,*) "DONE"
     
     !! On relâche le handle
+    write(*,*) "Liberation du handle"
     call usds(stiffness, istat)
+    write(*,*) "DONE"
 end subroutine AssembleBLAS
 
 
