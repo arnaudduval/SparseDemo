@@ -34,20 +34,26 @@ subroutine AssembleBLAS(connectivity, nElts, nNodes, nNodePerElement)
     integer                                                     :: istat
     
     integer :: i, j, iElement
+    double precision one
+    
+    one = 1.0
     
     !! Creation d'un handle BLAS
     write(*,*) "creation d un handle"
     write(*,*) nNodes, nNodes
     call duscr_begin(nNodes, nNodes, stiffness, istat)
+    call ussp(stiffness, blas_repeated_indices, istat)
     write(*,*) "DONE"
+
     
     !! On insere les valeurs à l'arrache 
     write(*,*) "insertion des valeurs"
     do iElement = 1, nElts
         do i = 1, nNodePerElement
             do j = 1, nNodePerElement
-                write(*,*) i, j, connectivity(iElement, i+1), connectivity(iElement, j+1)
-                call uscr_insert_entry(stiffness, 1.0, connectivity(iElement, i+1), connectivity(iElement, j+1), istat)
+                !!write(*,*) i, j, connectivity(iElement, i+1), connectivity(iElement, j+1)
+                call uscr_insert_entry(stiffness, one, connectivity(iElement, i+1), connectivity(iElement, j+1), istat)
+                !!write(*,*) istat
             enddo
         enddo
     enddo
@@ -65,7 +71,7 @@ subroutine AssembleBLAS(connectivity, nElts, nNodes, nNodePerElement)
 end subroutine AssembleBLAS
 
 
-program test
+subroutine test
 
     use blas_sparse
 
@@ -116,4 +122,33 @@ program test
     
     
 
-end program test
+end subroutine test
+
+program testblas
+    
+    implicit none
+    
+    integer, allocatable, dimension(:,:) :: connectivity
+    integer :: nNodes, nNodePerElement, nElts
+    integer :: i, j, dummy
+     
+     
+    nNodes = 36926
+    nNodePerElement = 64
+    nElts = 11712
+    allocate(connectivity(nElts, nNodePerElement+1))
+    
+    
+    open(11, file="/home/arnaud/sparse_demo/fixed.txt", form="formatted")
+    do i = 1, nElts
+        read(11,*) (connectivity(i,j), j=1, nNodePerElement+1)
+    enddo
+    
+    
+    
+    call AssembleBLAS(connectivity, nElts, nNodes, nNodePerElement)
+    
+
+
+end program testblas
+
