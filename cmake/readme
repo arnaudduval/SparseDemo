@@ -1,8 +1,0 @@
-Following files :
-
-CorrectWindowsPaths.cmake  
-FindPackageMultipass.cmake  
-FindPETSc.cmake  
-ResolveCompilerPaths.cmake
-
-come from Jed Brown (https://github.com/jedbrown/cmake-modules)
