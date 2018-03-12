@@ -5,8 +5,8 @@ program main
 
     implicit none
     
-#include "finclude/petscsys.h"
-#include "finclude/petscvec.h"
+#include "petsc/finclude/petscsys.h"
+#include "petsc/finclude/petscvec.h"
 
     PetscErrorCode ierr
     Vec x
