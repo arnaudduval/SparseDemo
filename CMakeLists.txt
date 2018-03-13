@@ -6,16 +6,33 @@ enable_language (Fortran)
 # Repertoire d'installation des modules Fortran
 set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran)
 
+# Modules de rechrech CMake supplémentaires
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 
-#find_package(PETSc)
 
-find_package(PkgConfig)
-pkg_search_module(PETSC REQUIRED PETSc)
-message(STATUS "TEST : ${PETSC_FOUND}")
-message(STATUS "TEST2 : ${PETSC_INCLUDE_DIRS}")
+
+find_package(PETSc REQUIRED)
+
+#find_package(PkgConfig)
+#pkg_search_module(PETSC REQUIRED PETSc)
+message(STATUS "PETSc_DIR : ${PETSC_DIR}")
+message(STATUS "PETSc_ARCH : ${PETSC_ARCH}")
+message(STATUS "PETSc_FOUND : ${PETSc_FOUND}")
+message(STATUS "PETSC_LIBRARIES : ${PETSC_LIBRARIES}")
+message(STATUS "PETSC_INCLUDES : ${PETSC_INCLUDES}")
+message(STATUS "PETSC_DEFINITIONS : ${PETSC_DEFINITIONS}")
+
+
+
+include_directories(${PETSC_INCLUDES})
+add_definitions(${PETSC_DEFINITIONS})
+
+
 
 set(CMAKE_Fortran_FLAGS "-cpp")
+
+
 
 
 
@@ -28,7 +45,7 @@ set(CMAKE_Fortran_FLAGS "-cpp")
 
 set( PETSC_EXAMPLE_SRC petsc-example.f90)
 add_executable( petsc-example ${PETSC_EXAMPLE_SRC} )
-target_include_directories( petsc-example PUBLIC ${PETSC_INCLUDE_DIRS})
-target_link_libraries( petsc-example petsc)
+#target_include_directories( petsc-example PUBLIC ${PETSC_INCLUDE_DIRS})
+target_link_libraries( petsc-example ${PETSC_LIBRARIES})
 
 
