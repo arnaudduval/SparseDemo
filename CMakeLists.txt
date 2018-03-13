@@ -45,4 +45,7 @@ set( PETSC_VECTOR_EXAMPLE_SRC petsc-vector-example.f90)
 add_executable( petsc-vector-example ${PETSC_VECTOR_EXAMPLE_SRC} )
 target_link_libraries( petsc-vector-example ${PETSC_LIBRARIES})
 
+set( PETSC_MATRIX_EXAMPLE_SRC petsc-matrix-example.f90)
+add_executable( petsc-matrix-example ${PETSC_MATRIX_EXAMPLE_SRC} )
+target_link_libraries( petsc-matrix-example ${PETSC_LIBRARIES})
 
