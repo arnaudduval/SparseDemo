@@ -10,12 +10,10 @@ set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 
-
+set(PETSC_EXECUTABLE_RUNS ON)
 
 find_package(PETSc REQUIRED)
 
-#find_package(PkgConfig)
-#pkg_search_module(PETSC REQUIRED PETSc)
 message(STATUS "PETSc_DIR : ${PETSC_DIR}")
 message(STATUS "PETSc_ARCH : ${PETSC_ARCH}")
 message(STATUS "PETSc_FOUND : ${PETSc_FOUND}")
@@ -43,9 +41,8 @@ set(CMAKE_Fortran_FLAGS "-cpp -ffree-line-length-none")
 #add_custom_command( OUTPUT plop COMMAND f2py -m pyAssembly -c ${CMAKE_SOURCE_DIR}/${DEMO_SRCS} -L${CMAKE_BINARY_DIR}/SparseBLAS -lSparseBLAS -I${CMAKE_BINARY_DIR}/fortran)
 
 
-set( PETSC_EXAMPLE_SRC petsc-example.f90)
-add_executable( petsc-example ${PETSC_EXAMPLE_SRC} )
-#target_include_directories( petsc-example PUBLIC ${PETSC_INCLUDE_DIRS})
-target_link_libraries( petsc-example ${PETSC_LIBRARIES})
+set( PETSC_VECTOR_EXAMPLE_SRC petsc-vector-example.f90)
+add_executable( petsc-vector-example ${PETSC_VECTOR_EXAMPLE_SRC} )
+target_link_libraries( petsc-vector-example ${PETSC_LIBRARIES})
 
 
