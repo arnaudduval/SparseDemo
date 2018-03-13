@@ -1,0 +1,15 @@
+Note d'installation/compilation de petsc:
+
+Téléchargement des sources
+git clone -b maint https://bitbucket.org/petsc/petsc petsc
+Configuration de base (la commande de compilation est donnée à la fin du configure)
+./configure
+
+Exporter les variables d'environnement PETSC_DIR et PETSC_ARCH
+Avec cette méthode, on a une erreur lors de l'exécution de CMake
+
+Utilisation du compilateur C++ a priori nécessaire pour activer certaines macros utilisées par le module de recherche CMake
+./configure --with-clanguage=cxx
+Sinon, on peut lancer CMake avec cmake -DPETSC_EXECUTABLE_RUNS=ON ..
+
+
