@@ -30,7 +30,7 @@ add_definitions(${PETSC_DEFINITIONS})
 
 
 
-set(CMAKE_Fortran_FLAGS "-cpp")
+set(CMAKE_Fortran_FLAGS "-cpp -ffree-line-length-none")
 
 
 
