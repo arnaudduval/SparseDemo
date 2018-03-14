@@ -49,3 +49,7 @@ set( PETSC_MATRIX_EXAMPLE_SRC petsc-matrix-example.f90)
 add_executable( petsc-matrix-example ${PETSC_MATRIX_EXAMPLE_SRC} )
 target_link_libraries( petsc-matrix-example ${PETSC_LIBRARIES})
 
+set( ASSEMBLY_SRCS assembly.f90)
+add_executable( assembly ${ASSEMBLY_SRCS} )
+
+
