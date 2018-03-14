@@ -13,6 +13,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(PETSC_EXECUTABLE_RUNS ON)
 
 find_package(PETSc REQUIRED)
+find_package(F2PY REQUIRED)
 
 message(STATUS "PETSc_DIR : ${PETSC_DIR}")
 message(STATUS "PETSc_ARCH : ${PETSC_ARCH}")
@@ -51,5 +52,47 @@ target_link_libraries( petsc-matrix-example ${PETSC_LIBRARIES})
 
 set( ASSEMBLY_SRCS assembly.f90)
 add_executable( assembly ${ASSEMBLY_SRCS} )
+target_link_libraries( assembly ${PETSC_LIBRARIES})
+
+#add_custom_target( pyAssembly ALL DEPENDS forwrap )
+#add_custom_command( OUTPUT forwrap COMMAND f2py -m pyAssembly -c ${CMAKE_SOURCE_DIR}/${ASSEMBLY_SRCS} -I${PETSC_INCLUDES})
+
+set(f2py_module_name "pyAssembly")
+set(fortran_src_file "${CMAKE_CURRENT_SOURCE_DIR}/${ASSEMBLY_SRCS}")
+set(generated_module_file ${CMAKE_CURRENT_BINARY_DIR}/${f2py_module_name}${PYTHON_EXTENSION_MODULE_SUFFIX})
+add_custom_target(${f2py_module_name} ALL DEPENDS ${generated_module_file})
+
+#generate Include string for petsc
+set(PETSC_INCLUDE_STRING )
+foreach(dir ${PETSC_INCLUDES})
+    message(STATUS ${dir})
+    set(PETSC_INCLUDE_STRING ${PETSC_INCLUDE_STRING} -I${dir})
+endforeach()
+message(${PETSC_INCLUDE_STRING})
+
+#generate Link string for petsc
+set(PETSC_LINK_STRING)
+foreach(lib ${PETSC_LIBRARIES})
+    message(STATUS ${lib})
+    get_filename_component(dir ${lib} DIRECTORY)
+    message(STATUS ${dir})
+    get_filename_component(libshort ${lib} NAME_WE)
+    string(REPLACE "lib" "" libshort ${libshort})
+    message(STATUS ${libshort})
+    set(PETSC_LINK_STRING ${PETSC_LINK_STRING} -L${dir} -l${libshort})
+endforeach()
+message(${PETSC_LINK_STRING})
+
+add_custom_command(OUTPUT ${generated_module_file} 
+                   COMMAND ${F2PY_EXECUTABLE}
+                   -m ${f2py_module_name}
+                   -c
+                   ${fortran_src_file}
+                   ${PETSC_INCLUDE_STRING}
+                   ${PETSC_LINK_STRING}
+                   --f90flags="-cpp -ffree-line-length-none"
+                   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                   )
+
 
 

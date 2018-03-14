@@ -22,18 +22,26 @@ subroutine Assemble(connectivity, nElts, nNodes, nNodePerElement, stiffness)
     
 end subroutine Assemble
 
+!!subroutine AssemblePETSc(connectivity, nElts, nNodes, nNodePerElement, stiffness)
 
+
+
+!!end subroutine AssemblePETSc
 
 
 
 program test
-    
+#include <petsc/finclude/petscmat.h>
+    use petscmat    
     implicit none
     
     integer, allocatable, dimension(:,:) :: connectivity
     integer :: nNodes, nNodePerElement, nElts
     integer :: i, j, dummy
     double precision, allocatable :: stiffness(:,:)
+    
+    Mat K
+    PetscErrorCode ierr
      
      
     !!nNodes = 36926
@@ -52,11 +60,20 @@ program test
         read(11,*) (connectivity(i,j), j=1, nNodePerElement+1)
     enddo
     
-    
-    
     call Assemble(connectivity, nElts, nNodes, nNodePerElement, stiffness)
     
+    call PetscInitialize(PETSC_NULL_CHARACTER, ierr)
+    if(ierr .ne. 0) then
+        print *, "Unable to initialize PETSc"
+        stop
+    endif
+    
+    
+    
+    
     deallocate(stiffness, connectivity)
+    
+    call PetscFinalize(ierr)
 
 end program test
 
