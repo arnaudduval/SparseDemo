@@ -5,7 +5,7 @@ module buildMat
     use petscmat    
     real(8), pointer :: pA(:)
     integer, pointer :: pia(:), pja(:)
-    Mat :: stiffness
+    Mat :: stiffness, K
     
 contains
 
@@ -14,16 +14,16 @@ subroutine Element(connectivity, nElts, nNodes, nNodePerElement, iElement, m, n,
     integer, dimension(nElts, nNodePerElement+1), intent(in) :: connectivity
     
     integer, dimension(nNodePerElement), intent(out) :: m, n
-    double precision, dimension(nNodePerElement*nNodePerElement), intent(out) :: v
+    real(8), dimension(nNodePerElement*nNodePerElement), intent(out) :: v
     
     integer i, j, idx
-    
+      
     do i = 1, nNodePerElement
         do j = 1, nNodePerElement
-            idx = j + (i-1)*nNodePerElement
+            idx = j + (i-1)*nNodePerElement !! Vérifier si on est en Row major ou pas
             v(idx) = 1.0
-            m(idx) = connectivity(iElement, i+1)-1
-            n(idx) = connectivity(iElement, j+1)-1
+            m(i) = connectivity(iElement, i+1) - 1
+            n(j) = connectivity(iElement, j+1) - 1
         enddo
     enddo
 
@@ -102,7 +102,7 @@ subroutine AssemblePETScBlock(connectivity, nElts, nNodes, nNodePerElement, nz)
     PetscErrorCode :: ierr
     PetscInt :: n
    
-    double precision, dimension(nNodePerElement*nNodePerElement) :: val
+    real(8), dimension(nNodePerElement*nNodePerElement) :: val
     integer, dimension(nNodePerElement) :: II, JJ
     
         !! Initialisation la matrice
@@ -112,7 +112,6 @@ subroutine AssemblePETScBlock(connectivity, nElts, nNodes, nNodePerElement, nz)
     do iElement = 1, nElts
         call Element(connectivity, nElts, nNodes, nNodePerElement, iElement, II, JJ, val)    
         call MatSetValues(stiffness, nNodePerElement, II, nNodePerElement, JJ, val, ADD_VALUES, ierr);CHKERRA(ierr)
-
     enddo 
     
     !! Assemblage
@@ -212,40 +211,47 @@ program test
     real(PETSC_REAL_KIND), allocatable :: A(:)
     integer, allocatable :: ia(:), ja(:)
     
-    Mat K
     PetscErrorCode ierr
+    PetscBool flg
      
      
-!!    nNodes = 36926
-!!    nNodePerElement = 64
-!!    nElts = 11712
-    nNodes = 9
-    nNodePerElement = 4
-    nElts = 4
+    nNodes = 36926
+    nNodePerElement = 64
+    nElts = 11712
+    !!nNodes = 9
+    !!nNodePerElement = 4
+    !!nElts = 4
     allocate(connectivity(nElts, nNodePerElement+1))
     !!allocate(stiffness(nNodes, nNodes))
 
     
-    !!open(11, file="/home/arnaud/sparse_demo/fixed.txt", form="formatted")
-    open(11, file="/home/arnaud/sparse_demo/fixed3.txt", form="formatted")
+    open(11, file="/home/arnaud/sparse_demo/fixed.txt", form="formatted")
+    !!open(11, file="/home/arnaud/sparse_demo/fixed3.txt", form="formatted")
     do i = 1, nElts
         read(11,*) (connectivity(i,j), j=1, nNodePerElement+1)
     enddo
     
     !!call Assemble(connectivity, nElts, nNodes, nNodePerElement, stiffness)
     
-    call PetscInitialize(PETSC_NULL_CHARACTER, ierr)
-    if(ierr .ne. 0) then
-        print *, "Unable to initialize PETSc"
-        stop
-    endif
+    call StartPETSc
     
 
     call AssemblePETSc(connectivity, nElts, nNodes, nNodePerElement, 500)
+    !! Copie de stiffness
+    call MatConvert(stiffness, MATSAME, MAT_INITIAL_MATRIX, K, ierr);CHKERRA(ierr)
+    call MatDestroy(stiffness, ierr);CHKERRA(ierr)
+    
+    !! Assemblage avec blocs
+    call AssemblePETScBlock(connectivity, nElts, nNodes, nNodePerElement, 500)
+
+    call MatEqual(stiffness, K, flg, ierr);CHKERRA(ierr)
+
+    
+    write(*,*) 'MatEqual', flg
     
     !!deallocate(stiffness, connectivity)
     
-    call PetscFinalize(ierr)
+    call PetscFinalize(ierr);CHKERRA(ierr)
 
 end program test
 
