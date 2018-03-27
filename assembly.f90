@@ -192,6 +192,15 @@ subroutine StartPETSc
 
 end subroutine StartPETSc
 
+subroutine StopPetsc
+#include <petsc/finclude/petscsys.h>
+    use petscsys
+    PetscErrorCode ierr
+    
+    call PetscFinalize(ierr);CHKERRA(ierr)
+
+end subroutine StopPetsc
+
 
 
 end module
@@ -251,7 +260,7 @@ program test
     
     !!deallocate(stiffness, connectivity)
     
-    call PetscFinalize(ierr);CHKERRA(ierr)
+    call StopPetsc
 
 end program test
 
